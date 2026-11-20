@@ -1,0 +1,139 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{geometry,booktabs,tabularx,array,longtable,enumitem}
+\usepackage[hidelinks]{hyperref}
+\geometry{margin=25mm}
+\setlength{\parindent}{15pt}
+\setlength{\parskip}{0pt}
+\renewcommand{\arraystretch}{1.15}
+\setlist[itemize]{itemsep=2pt}
+\setlist[enumerate]{itemsep=2pt}
+\title{Autonomous Discovery and Composition of Latent Reasoning Operators in Large Language Models}
+\author{}
+\date{November 21, 2026}
+\newcommand{\Rset}{\mathcal R_{\phi}}
+\newcommand{\loss}{\mathcal L}
+\newcommand{\tblhead}[1]{\textbf{#1}}
+\begin{document}
+\maketitle
+\textbf{Research objective.} Develop a general-purpose language-model architecture in which an LLM learns the functions of its internal reasoning operators without predefined operator semantics, and selects, composes, and iterates those operators to generalize systematically to unseen problems.
+
+\section{Background and Motivation}
+Transformer-based LLMs can learn complex reasoning patterns, yet they may struggle with unseen relational compositions, longer inference chains, and consistency across logically equivalent formulations. Just as CNNs exploit an inductive bias toward spatial structure in images, this research investigates whether an architectural bias toward \textbf{structured computation for reasoning} can improve LLMs.
+
+Crucially, the researcher does not assign individual modules the semantics of Modus Ponens, AND, OR, or other rules. The architecture provides \emph{learnable capacity}, while \textbf{the functions of the modules and the ways they are composed emerge from data}.
+
+\section{Core Research Components}
+\begin{enumerate}
+\item \textbf{Latent Representation Learning:} Encode concepts and relationships in contextual hidden states.
+\item \textbf{Autonomous Operator Discovery:} Learn whether latent operators without predefined roles specialize into distinct, useful computational functions.
+\item \textbf{Compositional \& Iterative Reasoning:} Dynamically select, sequentially compose, and repeatedly apply learned operators.
+\end{enumerate}
+The goal is not a mathematics-specific theorem prover or an external SAT tool, but an improvement to \textbf{general LLM capabilities such as language understanding, judgment, planning, and problem solving}.
+
+\section{Mathematical Formulation of the Proposed Architecture}
+Given an input sequence $X$, obtain contextual representations and an initial reasoning state:
+\begin{equation}
+H=f_{\theta}(X), \qquad z_0=g_{\eta}(H).
+\end{equation}
+Define $K$ learnable latent reasoning operators:
+\begin{equation}
+\Rset=\{R_{\phi_1},R_{\phi_2},\ldots,R_{\phi_K}\}.
+\end{equation}
+A policy $\pi_\psi(i\mid z_t,H)$ assigns operator weights based on the current state. One possible update is
+\begin{equation}
+\boxed{z_{t+1}=z_t+\sum_{i=1}^{K}\pi_\psi(i\mid z_t,H)\,R_{\phi_i}(z_t,H)}
+\label{eq:update}
+\end{equation}
+This equation is a \emph{candidate design}, not an established architecture. Alternatives include selecting one operator, sparse routing, or hierarchical composition. After $T$ updates, the result is integrated into the language model:
+\begin{equation}
+H'=G_{\omega}(H,z_T), \qquad p_{\Theta}(y\mid X)=\operatorname{Softmax}(\operatorname{LMHead}(H')).
+\end{equation}
+
+\section{Training Objectives and Technical Challenges}
+A possible joint objective is
+\begin{equation}
+\boxed{\loss=\loss_{\mathrm{LM}}+\lambda\loss_{\mathrm{reasoning}}+\mu\loss_{\mathrm{regularization}}.}
+\end{equation}
+\begin{itemize}
+\item $\loss_{\mathrm{LM}}$: Preserve general language-model performance.
+\item $\loss_{\mathrm{reasoning}}$: Learn from outcomes on diverse reasoning tasks.
+\item $\loss_{\mathrm{regularization}}$: Mitigate operator collapse and unnecessary complexity.
+\end{itemize}
+The central challenge is \emph{operator collapse}: multiple operators may learn nearly identical computations, or one operator may dominate routing. Mere output diversity does not ensure meaningful specialization; the method must encourage or measure \textbf{functional reusability across tasks}.
+
+\section{Prior Work and Potential Distinctions}
+\begin{tabularx}{\linewidth}{@{}p{0.27\linewidth}X@{}}
+\toprule
+\tblhead{Study} & \tblhead{Connection to and distinction from this research}\\
+\midrule
+Coconut (2025) & Iterative reasoning in a continuous latent space. This project separately tests whether operators with distinct functions emerge autonomously and recombine across tasks.\\
+TYLER (2026) & Latent operators with predefined roles. This project examines learning \emph{without assigning operator-specific semantics}.\\
+Neural Module Networks (2016) & Establishes the idea of composing multiple neural modules. Autonomous formation of general-purpose reasoning functions inside LLMs is an additional target.\\
+Neural Programmer-Interpreters (2016) & Precedent for reusable computation and hierarchical program composition.\\
+Differentiable ILP (2018) & Learns explicit logical rules. This project instead targets latent computational operators without requiring symbolic formulas.\\
+\bottomrule
+\end{tabularx}
+\textit{Caveat:} Multiple modules and emergent specialization have been studied previously. Simply combining these components is not sufficient to establish novelty. A new learning mechanism and convincing evidence of generalization are necessary.
+
+\section{Research Questions}
+\textbf{Primary research question}
+
+\emph{Can language models autonomously discover reusable latent reasoning operators and compose them to achieve systematic generalization?}
+
+\begin{enumerate}[label=RQ\arabic*.]
+\item Can operators specialize into different functions without predefined roles?
+\item Can learned operators be reused on novel reasoning problems?
+\item Can the model generalize to operator compositions not observed during training?
+\item Can accuracy be maintained at inference depths longer than those used in training?
+\item Does the acquired reasoning ability transfer to general natural-language problems?
+\end{enumerate}
+
+\subsection*{Additional Research Question: Is Predefined Specialization Necessary?}
+\textbf{Is predefined operator specialization necessary for efficient latent reasoning, or can reusable reasoning operators emerge autonomously through end-to-end learning?}
+
+Does efficient latent reasoning require human-specified operator functions, or can reusable operators arise during end-to-end optimization? Evaluate \textbf{training efficiency} separately from \textbf{generalization efficiency}.
+
+\section{Experimental Design}
+\subsection{Baselines and Comparison Conditions}
+\begin{tabularx}{\linewidth}{@{}p{0.37\linewidth}X@{}}
+\toprule
+\tblhead{Model / condition} & \tblhead{Purpose}\\
+\midrule
+Vanilla Transformer & Establish baseline performance.\\
+Coconut & Measure the effect of repeatedly applying shared latent computation.\\
+TYLER / predefined specialization & Evaluate the effect of human-assigned operator roles.\\
+Free operator learning & Train multiple untyped operators with task loss alone.\\
+Emergent specialization (proposed) & Encourage functional specialization and reuse without predefined roles.\\
+\bottomrule
+\end{tabularx}
+\subsection{Key Evaluation Metrics}
+\begin{itemize}
+\item \textbf{Systematic generalization:} Unseen logical structures, conceptual combinations, and paraphrases.
+\item \textbf{Depth generalization:} Inference chains longer than those encountered in training.
+\item \textbf{Operator specialization / reusability:} Operator removal, swapping, transfer, and routing analysis.
+\item \textbf{General-purpose transfer:} Natural-language conditional inference, contradiction detection, and planning.
+\item \textbf{Efficiency:} Comparisons using matched backbones, parameter budgets, training FLOPs, and inference budgets.
+\end{itemize}
+Higher answer accuracy alone does not prove that an operator learned a logical function. Causal interventions and counterfactual evaluations of internal computations are also required.
+
+\section{Expected Contributions and Success Criteria}
+\begin{enumerate}
+\item Introduce a learning method for latent reasoning operators without predefined semantics.
+\item Determine how operator specialization relates to compositional generalization under controlled conditions.
+\item Compare predefined and autonomous operator specialization in accuracy, stability, and computational cost.
+\item Evaluate transfer beyond logic benchmarks to general-purpose LLM reasoning.
+\end{enumerate}
+\textbf{Central hypothesis:} If an LLM learns to autonomously specialize, select, and compose latent reasoning operators without fixed roles, it may achieve better systematic generalization and broader problem-solving performance. This remains an untested hypothesis.
+
+\section*{Selected References}
+\begin{enumerate}[leftmargin=1.8em]
+\item Hao et al., \emph{Training Large Language Models to Reason in a Continuous Latent Space} (Coconut, COLM 2025). \url{https://arxiv.org/abs/2412.06769}
+\item \emph{TYLER: Typed Latent Reasoning for Language Models} (EMNLP 2026). \href{https://aclanthology.org/2026.emnlp-main.2004/}{Paper link}
+\item Andreas et al., \emph{Neural Module Networks} (2016). \url{https://arxiv.org/abs/1511.02799}
+\item Reed and de Freitas, \emph{Neural Programmer-Interpreters} (ICLR 2016). \url{https://arxiv.org/abs/1511.06279}
+\item Evans and Grefenstette, \emph{Learning Explanatory Rules from Noisy Data} (JAIR 2018). \url{https://arxiv.org/abs/1711.04574}
+\end{enumerate}
+\end{document}
